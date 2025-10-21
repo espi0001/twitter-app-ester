@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Items</title>
+</head>
+<body>
+    <h1>Pagination on Items</h1>
+    
+    <div id="items">
+        {% for item in items %}
+            {% include "_item.html" %}
+        {% endfor %}
+    </div>
+
+    
+    <!-- make it a hyperlink so the search engine makes it a linke and ?? -->
+    <!-- we want it to show the next two items -->
+    <!-- We make the link a Query string  -->
+    <!-- mix-get so google understands -->
+    <!-- <a id="show_more" href="/api-get-items?page=2" mix-get>Show more</a> -->
+    {% include "___show_more.html" %}
+
+    <script src="{{ url_for('static', filename='mixhtml.js') }}"></script>
+</body>
+</html>

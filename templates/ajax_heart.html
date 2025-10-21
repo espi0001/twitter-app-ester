@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='app.css') }}">
+    <title>Ajax Heart</title>
+</head>
+<body>
+
+    <h1>Ajax Heart</h1>
+    
+    <button id="like_tweet" onclick="likeTweet()">heart simple</button> <!-- for liking a tweet -->
+
+
+    <button id="unlike_tweet" class="hidden" onclick="unlikeTweet()">heart solid</button> <!-- for unliking a tweet -->
+
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

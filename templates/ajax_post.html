@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='app.css') }}">
+    <title>AJAX POST</title>
+</head>
+<body>
+    <h1>AJAX POST</h1>
+
+    <form> <!-- dont need action or method because its an ajax -->
+        <input name="user_name" type="text" placeholder="Username">
+        <input name="last_name" type="text" placeholder="Last name">
+        <input name="nick_name" type="text" placeholder="Nickname">
+        
+        <button onclick="save()" type="button">Save</button> <!-- by default type="submit" -->
+    </form> 
+
+    <div id="saveMessage"></div>
+
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

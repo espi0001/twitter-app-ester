@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css"> -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='app.css') }}">
+    <title>Signup</title>
+</head>
+<body>
+    <header>
+        <h1>Sign up page</h1>
+    </header>
+
+    <main>
+        <h2>
+            {{ message }}
+        </h2>
+    
+        <form action="/signup" mix-post> <!-- use post because im creating a new user --> <!-- we are using the mixhtml.com with the mix-post -->
+            
+            <!-- name must match what app and x.py expects -->
+            <input name="user_email" type="text" placeholder="Email" mix-check="{{ x.REGEX_EMAIL }}" value="espi0001.dummy@gmail.com">
+
+            <div> <!-- USER_USERNAME_MIN and USER_USERNAME_MAX comes from the x.py -->
+                <label for="">Username min {{ x.USER_USERNAME_MIN }} max {{ x.USER_USERNAME_MAX }}</label>
+                <input 
+                name="user_username" 
+                type="text" 
+                placeholder="Username" 
+                mix-check="{{ x.REGEX_USER_USERNAME }}" 
+                value="espi"
+                >
+                <!-- the mix-check should match the validaiton in the backend -->
+                <!-- we are calling the REGEX_USER_USERNAME in the x.py using jinja  -->
+                
+            </div>
+            
+            
+            <input name="user_first_name" type="text" placeholder="First name" mix-check="{{ x.REGEX_FIRST_NAME }}" value="ester">
+            <input name="user_last_name" type="text" placeholder="Last name" mix-check="{{ x.REGEX_LAST_NAME }}" value="piazza">
+            <input name="user_password" type="text" placeholder="Password" mix-check="{{ x.REGEX_USER_PASSWORD }}" value="password"> 
+            
+            <button class="btn">Sign up</button>
+        </form>
+
+        <p>Already have a user? <a href="/login" class="user_btn btn">Log in</a></class=>
+    </main>
+    
+    <script src="{{ url_for('static', filename='mixhtml.js') }}"></script>
+</body>
+</html>

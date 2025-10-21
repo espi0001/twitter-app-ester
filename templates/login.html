@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css">
+    <title>Login</title>
+</head>
+<body>
+    <header>
+        <h1>Login page</h1>
+    </header>
+
+    <main>
+        <h2>
+            {{ message }}
+        </h2>
+    
+        <form action="/login" method="POST"> <!-- sends POST request to /login route -->
+            <!-- name must match what app expects -->
+            <input name="user_email" type="text" placeholder="email">
+            <input name="user_password" type="text" placeholder="password">
+            <button class="btn">Login</button>
+        </form>
+
+        <!-- sign up link -->
+        <p>Don't you have a user? <a href="/signup" class="user_btn btn">Sign up</a></p>
+    </main>
+</body>
+</html>
