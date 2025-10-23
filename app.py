@@ -20,10 +20,13 @@ from flask_session import Session
 from werkzeug.security import generate_password_hash
 from werkzeug.security import check_password_hash
 import x 
-# import send_mail
+
 import time
 import uuid
 import os
+
+import traceback
+# traceback.print_exc()
 
 from icecream import ic
 ic.configureOutput(prefix=f'----- | ', includeContext=True)
@@ -36,6 +39,12 @@ app.config['MAX_CONTENT_LENGTH'] = 1 * 1024 * 1024   # 1 MB
 # Sessions
 app.config['SESSION_TYPE'] = 'filesystem'
 Session(app)
+
+# Generate a unique id
+# user_verification_key = (uuid.uuid4()) tis is a UUID object
+# user_verification_key = str(uuid.uuid4()) # convert, cast, type cast to a string (with dashes -)
+# user_verification_key = uuid.uuid4().hex # show 32 charachters without dashes (-)
+# ic(user_verification_key)
 
 
 ##############################
@@ -57,7 +66,7 @@ def view_index():
 ############# GET - LOGIN view #############
 @app.get("/login")
 def view_login():
-    if session.get("user", ""): return redirect(url_for("view_home"))
+    if session.get("", ""): return redirect(url_for("view_home"))
 
     message = request.args.get("message", "")
     return render_template("login.html", message=message)
@@ -123,7 +132,6 @@ def handle_signup():
         # <mixhtml mix-redirect='/tweet'>
         # </mixhtml>
         # """
-    
 
         # 1) Read and validate
         user_email = x.validate_user_email()
@@ -134,31 +142,38 @@ def handle_signup():
 
         # 2) hash password
         user_hashed_password = generate_password_hash(user_password)
-
+        
+        # Verification Key
+        user_verification_key = uuid.uuid4().hex # show 32 charachters without dashes (-)
+        ic(user_verification_key)
+        
         # Connect to the database
         # 3) INSERT user in DB 
-        q = "INSERT INTO users VALUES(%s, %s, %s, %s, %s, %s, %s)"
+        q = "INSERT INTO users VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s)"
         
         db, cursor = x.db()
-        cursor.execute(q, (None, user_email, user_hashed_password, user_username, user_first_name, user_last_name, None))
+        
+        cursor.execute(q, (None, user_email, user_hashed_password, user_username, user_first_name, user_last_name, None, user_verification_key, None))
         db.commit()
+
+        base = request.host_url.rstrip("/") # fx http://127.0.0.1:5000
+        verify_link = f"{base}/activate?key={user_verification_key}"
 
         receiver_email = request.form.get("user_email", "")
 
         # 4) Send velkomstmail
-        x.send_verify_email(receiver_email=receiver_email)
+        x.send_verify_email(receiver_email=receiver_email, verify_link=verify_link, user_username=user_username)
         
         return redirect(url_for("view_login", message="Signup successful. Proceed to login"))
     except Exception as ex:
         ic(ex)
         if ex.args[1] == 400: return redirect(url_for("view_signup", message=ex.args[0]))
         if "Duplicate entry" and user_email in str(ex): return redirect(url_for("view_signup", message="Email already registered"))
-        if "Duplicate entry" and user_username in str(ex): return redirect(url_for("view_signup", message="username already registered"))
+        if "Duplicate entry" and user_username in str(ex): return redirect(url_for("view_signup", message="Username already registered"))
         return "System under maintenance", 500
     finally:
         if "cursor" in locals(): cursor.close()
         if "db" in locals(): db.close()
-
 
 ##############################
 @app.get("/send-email")
@@ -172,14 +187,46 @@ def send_email():
         pass
 
 
+############# GET - USER ACTIVATE #############
+@app.get("/activate")
+def activate_user():
+    key = request.args.get("key", "").strip() # strip gør at man fjerner mellemrum
+    if not key:
+        return redirect(url_for("view_signup", message="missing verification key"))
+    try:
+        db, cursor = x.db()
+        cursor.execute("SELECT user_pk FROM users WHERE verification_key=%s LIMIT 1", (key,))
+        row = cursor.fetchone()
+        if not row:
+            return redirect(url_for("view_signup", message="Invalid or expired verification link"))
+        
+        user_pk = row["user_pk"] if isinstance(row, dict) else row[0]
+        now_epoch = int(time.time())
+        cursor.execute("""
+        UPDATE users
+        SET user_activated_at=%s,
+        verification_key=NULL
+        WHERE user_pk=%s
+        """, (now_epoch, user_pk))
+        db.commit()
+        return redirect(url_for("view_login", message="Your account is now verified. You can log in."))
+    except Exception as ex:
+        ic(ex)
+        return redirect(url_for("view_signup", message="Could not activate account. Please try again.")), 500
+    finally:
+        if "cursor" in locals(): cursor.close()
+        if "db" in locals(): db.close()
+
+
+
 # -------------------- HOME --------------------
 ############# GET - HOME (protected) #############
 @app.get("/home")
 @x.no_cache # prevents showing cached content after logout / "back" button
 def view_home():
     try: 
-        #user = session.get("user", "")
-        #if not user: return redirect(url_for("view_login"))
+        user = session.get("user", "")
+        if not user: return redirect(url_for("view_login"))
         next_page = 1
         db, cursor = x.db()
         q = "SELECT * FROM users JOIN posts ON user_pk = user_fk LIMIT 0,2"
@@ -192,7 +239,7 @@ def view_home():
         trending = cursor.fetchall()
         ic(trending)
         
-        q = "SELECT * FROM users WHERE user_pk!= 1 ORDER BY RAND() LIMIT 5" 
+        q = "SELECT * FROM users WHERE user_pk != 1 ORDER BY RAND() LIMIT 5" 
         cursor.execute(q)
         users_to_follow = cursor.fetchall()
         ic(users_to_follow)

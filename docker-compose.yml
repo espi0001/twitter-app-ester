@@ -16,7 +16,7 @@ services:
     image: mariadb:10.6.20
     container_name: twitter_mariadb
     environment:
-      MYSQL_ROOT_PASSWORD: MyPasswordForYou
+      MYSQL_ROOT_PASSWORD: Bygade40
       MYSQL_DATABASE: twitter
     volumes:
       - mariadb_data:/var/lib/mysql
@@ -42,7 +42,7 @@ services:
       - mariadb
     environment:
       PMA_HOST: mariadb
-      MYSQL_ROOT_PASSWORD: MyPasswordForYou
+      MYSQL_ROOT_PASSWORD: Bygade40
     ports:
       - 8080:80
 volumes:

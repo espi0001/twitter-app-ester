@@ -42,6 +42,8 @@ import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
+import traceback
+
 from icecream import ic 
 ic.configureOutput(prefix=f'----- | ', includeContext=True)
 
@@ -77,7 +79,7 @@ def db():
     try:
         host = "esterpiazza.mysql.eu.pythonanywhere-services.com" if "PYTHONANYWHERE_DOMAIN" in os.environ else "mariadb"
         user = "esterpiazza" if "PYTHONANYWHERE_DOMAIN" in os.environ else "root"
-        password = "MyPasswordForYou" if "PYTHONANYWHERE_DOMAIN" in os.environ else "password"
+        password = "Bygade40" if "PYTHONANYWHERE_DOMAIN" in os.environ else "Bygade40"
         database = "esterpiazza$default" if "PYTHONANYWHERE_DOMAIN" in os.environ else "twitter"
         db = mysql.connector.connect(
             #host = "mariadb", 
@@ -293,16 +295,16 @@ def validate_uuid4(uuid4 = ""):
 
 
 ############ SEND EMAIL ##################
-def send_verify_email(receiver_email):
+def send_verify_email(receiver_email, verify_link, user_username, subject="Please verify your account"):
     try:
-        # Create a gmail fullflaskdemomail
-        # Enable (turn on) 2 step verification/factor in the google account manager
+        # Create a dummy gmail
+        # Go to the google account manager and Enable (turn on) 2 step verification/factor 
         # Visit: https://myaccount.google.com/apppasswords
         # My key for the twitter: nafd zujo bklo qwnc
 
         # Email and password of the sender's Gmail account
         sender_email = "espi0001.dummy@gmail.com" # YOUR GMAIL HERE
-        password = "nafd zujo bklo qwnc"  #APP PASSWORD HERE # If 2FA is on, use an App Password instead
+        password = "nafd zujo bklo qwnc"  # APP PASSWORD HERE # If 2FA is on, use an App Password instead
 
         # Receiver email address
         receiver_email = "espi0001.dummy@gmail.com" # YOUR GMAIL HERE
@@ -311,10 +313,15 @@ def send_verify_email(receiver_email):
         message = MIMEMultipart()
         message["From"] = "Twitter"
         message["To"] = receiver_email
-        message["Subject"] = "Congrats you have signed up!"
+        message["Subject"] = subject
 
         # Body of the email
-        body = f"""Congrats, you have signed up"""
+        body = f"""
+        <p>Well done {user_username}, you have signed up!</p>
+        <p>Please verify your account by clicking the link below:</p>
+        <p><a href="{verify_link}">{verify_link}</a></p>
+        <p>If you didn't create an account, you can ignore this email.</p>
+        """
 
         message.attach(MIMEText(body, "html"))
 
@@ -328,6 +335,8 @@ def send_verify_email(receiver_email):
         return "email sent"
     
     except Exception as ex:
-        pass
+        print("Email error:", ex)
+        traceback.print_exc()
+        raise  # lad fejlen boble op så du ser 500 med årsag
     finally:
         pass

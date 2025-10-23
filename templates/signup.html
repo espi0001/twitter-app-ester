@@ -20,7 +20,7 @@
         <form action="/signup" mix-post> <!-- use post because im creating a new user --> <!-- we are using the mixhtml.com with the mix-post -->
             
             <!-- name must match what app and x.py expects -->
-            <input name="user_email" type="text" placeholder="Email" mix-check="{{ x.REGEX_EMAIL }}" value="espi0001.dummy@gmail.com">
+            <input name="user_email" type="text" placeholder="Email" mix-check="{{ x.REGEX_EMAIL }}" value="espi0001@gmail.com">
 
             <div> <!-- USER_USERNAME_MIN and USER_USERNAME_MAX comes from the x.py -->
                 <label for="">Username min {{ x.USER_USERNAME_MIN }} max {{ x.USER_USERNAME_MAX }}</label>
